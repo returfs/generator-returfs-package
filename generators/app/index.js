@@ -1,8 +1,6 @@
 'use strict';
 
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import Generator from 'yeoman-generator';
 import chalk from 'chalk';
 import yosay from 'yosay';
@@ -13,13 +11,10 @@ import {
 } from './git-helper.js';
 import { slugify, toNamespace, titleCase } from './string-helper.js';
 
-const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-// const require = createRequire(import.meta.url);
-
 export default class extends Generator {
   constructor(args, opts) {
     super(args, opts);
+    // todo: skeleton-returfs-extension
     this._template = 'skeleton-returfs-package';
     this._author = {
       name: getGitConfig('user.name'),
@@ -102,8 +97,8 @@ export default class extends Generator {
       },
       {
         type: 'input',
-        name: 'packageName',
-        message: 'Package name:',
+        name: 'extensionName',
+        message: 'Extension name:',
         default: this.appname,
       },
       {
@@ -115,7 +110,7 @@ export default class extends Generator {
       {
         type: 'input',
         name: 'description',
-        message: 'Package description:',
+        message: 'Extension description:',
         default: 'e.g: text editor for returfs',
       },
       {
@@ -156,30 +151,28 @@ export default class extends Generator {
   async _showSummary() {
     this.log(
       chalk.blue(`
-            __________________________________________________________________________________________
-            Author     : ${this.answers.authorName} (${this.answers.authorUsername}, ${this.answers.authorEmail})
-            Vendor     : ${this.answers.vendorName} (${slugify(this.answers.vendorName)})
-            Package    : ${slugify(this.appname)} <${this.answers.description}>
-            Namespace  : ${this.answers.vendorNamespace}\\${this.answers.className}
-            Class name : ${this.answers.className}
-            ____________________
-            Packages & Utilities
-            Stack                : ${this.answers.stack.map(item => item.charAt(0).toUpperCase() + item.slice(1)).join(', ')}
-            Use Dependabot       : ${this.answers.useDependabot ? 'yes' : 'no'}
-            __________________________________________________________________________________________
-
-            This script will replace the above values in all relevant files in the project directory.
+    __________________________________________________________________________________________
+    Author     : ${this.answers.authorName} (${this.answers.authorUsername}, ${this.answers.authorEmail})
+    Vendor     : ${this.answers.vendorName} (${slugify(this.answers.vendorName)})
+    Extension    : ${slugify(this.appname)} <${this.answers.description}>
+    Namespace  : ${this.answers.vendorNamespace}\\${this.answers.className}
+    Class name : ${this.answers.className}
+    ____________________
+    Packages & Utilities
+    Stack                : ${this.answers.stack.map(item => item.charAt(0).toUpperCase() + item.slice(1)).join(', ')}
+    Use Dependabot       : ${this.answers.useDependabot ? 'yes' : 'no'}
+    __________________________________________________________________________________________
         `),
     );
 
     const proceed = await this.prompt({
       type: 'confirm',
-      name: 'modifyFiles',
-      message: 'Modify files?',
+      name: 'modifyAnswer',
+      message: 'Modify answer?',
       default: false,
     });
 
-    if (proceed.modifyFiles) {
+    if (proceed.modifyAnswer) {
       await this.prompting();
       return false;
     }
@@ -202,7 +195,7 @@ export default class extends Generator {
       this.templatePath(this._template + '/CHANGELOG.md'),
       this.destinationPath('CHANGELOG.md'),
       {
-        packageName: this.appname,
+        extensionName: this.appname,
       },
     );
     this.fs.copy(
@@ -222,6 +215,11 @@ export default class extends Generator {
     this.fs.copyTpl(
       this.templatePath(this._template + '/.github/ISSUE_TEMPLATE/config.yml'),
       this.destinationPath('.github/ISSUE_TEMPLATE/config.yml'),
+      {
+        ...this.answers,
+        vendorSlug: slugify(this.answers.vendorName),
+        extensionSlug: slugify(this.appname),
+      },
     );
     this.fs.copyTpl(
       this.templatePath(this._template + '/.github/ISSUE_TEMPLATE/bug.yml'),
@@ -233,7 +231,7 @@ export default class extends Generator {
         this.templatePath(this._template + '/phpunit.xml'),
         this.destinationPath('phpunit.xml'),
         {
-          packageSlug: slugify(this.appname),
+          extensionSlug: slugify(this.appname),
         },
       );
       this.fs.copy(
@@ -246,7 +244,7 @@ export default class extends Generator {
         {
           ...this.answers,
           vendorSlug: slugify(this.answers.vendorName),
-          packageSlug: slugify(this.appname),
+          extensionSlug: slugify(this.appname),
         },
       );
 
@@ -304,7 +302,7 @@ export default class extends Generator {
           this._template + '/src/Http/Controllers/ShowSkeletonController.php',
         ),
         this.destinationPath(
-          '/src/Http/Controllers/' +
+          'src/Http/Controllers/' +
             'Show' +
             this.answers.className +
             'Controller.php',
@@ -317,7 +315,7 @@ export default class extends Generator {
         this.templatePath(
           this._template + '/src/Http/Controllers/Controller.php',
         ),
-        this.destinationPath('/src/Http/Controllers/Controller.php'),
+        this.destinationPath('src/Http/Controllers/Controller.php'),
         {
           ...this.answers,
         },
@@ -328,14 +326,14 @@ export default class extends Generator {
             '/database/migrations/create_skeleton_table.php.stub',
         ),
         this.destinationPath(
-          '/database/migrations/create_' + slugify(this.appname) + '_table.php',
+          'database/migrations/create_' + slugify(this.appname) + '_table.php',
         ),
       );
       this.fs.copyTpl(
         this.templatePath(
           this._template + '/database/factories/ModelFactory.php',
         ),
-        this.destinationPath('/database/factories/ModelFactory.php'),
+        this.destinationPath('database/factories/ModelFactory.php'),
         {
           ...this.answers,
         },
@@ -379,7 +377,7 @@ export default class extends Generator {
         {
           ...this.answers,
           vendorSlug: slugify(this.answers.vendorName),
-          packageSlug: slugify(this.appname),
+          extensionSlug: slugify(this.appname),
         },
       );
       this.fs.copyTpl(
@@ -419,5 +417,18 @@ export default class extends Generator {
         this.destinationPath('.github/workflows/dependabot-auto-merge.yml'),
       );
     }
+  }
+
+  async install() {
+    this.spawn('npm', ['install']);
+    this.spawn('composer', ['install']);
+  }
+
+  end() {
+    this.log(
+      yosay(
+        `Your extension '${chalk.blue(this.appname)}' was created successfully.`,
+      ),
+    );
   }
 }
