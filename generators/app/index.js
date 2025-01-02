@@ -213,6 +213,20 @@ export default class extends Generator {
       this.templatePath(this._template + '/.editorconfig'),
       this.destinationPath('.editorconfig'),
     );
+    this.fs.copy(
+      this.templatePath(
+        this._template + '/.github/workflows/update-changelog.yml',
+      ),
+      this.destinationPath('.github/workflows/update-changelog.yml'),
+    );
+    this.fs.copyTpl(
+      this.templatePath(this._template + '/.github/ISSUE_TEMPLATE/config.yml'),
+      this.destinationPath('.github/ISSUE_TEMPLATE/config.yml'),
+    );
+    this.fs.copyTpl(
+      this.templatePath(this._template + '/.github/ISSUE_TEMPLATE/bug.yml'),
+      this.destinationPath('.github/ISSUE_TEMPLATE/bug.yml'),
+    );
 
     if (this.answers.stack.includes('laravel')) {
       this.fs.copyTpl(
@@ -308,6 +322,38 @@ export default class extends Generator {
           ...this.answers,
         },
       );
+      this.fs.copy(
+        this.templatePath(
+          this._template +
+            '/database/migrations/create_skeleton_table.php.stub',
+        ),
+        this.destinationPath(
+          '/database/migrations/create_' + slugify(this.appname) + '_table.php',
+        ),
+      );
+      this.fs.copyTpl(
+        this.templatePath(
+          this._template + '/database/factories/ModelFactory.php',
+        ),
+        this.destinationPath('/database/factories/ModelFactory.php'),
+        {
+          ...this.answers,
+        },
+      );
+      this.fs.copy(
+        this.templatePath(this._template + '/.github/workflows/run-tests.yml'),
+        this.destinationPath('.github/workflows/run-tests.yml'),
+      );
+      this.fs.copy(
+        this.templatePath(this._template + '/.github/workflows/phpstan.yml'),
+        this.destinationPath('.github/workflows/phpstan.yml'),
+      );
+      this.fs.copy(
+        this.templatePath(
+          this._template + '/.github/workflows/fix-php-code-style-issues.yml',
+        ),
+        this.destinationPath('.github/workflows/fix-php-code-style-issues.yml'),
+      );
     }
 
     if (this.answers.stack.includes('react')) {
@@ -358,6 +404,19 @@ export default class extends Generator {
       this.fs.copy(
         this.templatePath(this._template + '/resources/css/app.css'),
         this.destinationPath('resources/css/app.css'),
+      );
+    }
+
+    if (this.answers.useDependabot) {
+      this.fs.copy(
+        this.templatePath(this._template + '/.github/dependabot.yml'),
+        this.destinationPath('.github/dependabot.yml'),
+      );
+      this.fs.copy(
+        this.templatePath(
+          this._template + '/.github/workflows/dependabot-auto-merge.yml',
+        ),
+        this.destinationPath('.github/workflows/dependabot-auto-merge.yml'),
       );
     }
   }
