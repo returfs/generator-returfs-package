@@ -1,6 +1,5 @@
 'use strict';
 
-import { fileURLToPath } from 'url';
 import Generator from 'yeoman-generator';
 import chalk from 'chalk';
 import yosay from 'yosay';
@@ -15,6 +14,7 @@ export default class extends Generator {
   constructor(args, opts) {
     super(args, opts);
     // todo: skeleton-returfs-extension
+    // todo: add src/Listeners
     this._template = 'skeleton-returfs-package';
     this._author = {
       name: getGitConfig('user.name'),
@@ -73,33 +73,15 @@ export default class extends Generator {
       },
       {
         type: 'input',
-        name: 'authorUsername',
-        message: 'Author GitHub username:',
-        default: this._author.username,
-      },
-      {
-        type: 'input',
         name: 'vendorName',
         message: 'Vendor name:',
         default: gitHubVendorInfo.name,
       },
       {
         type: 'input',
-        name: 'vendorUsername',
-        message: 'Vendor username:',
-        default: gitHubVendorInfo.username,
-      },
-      {
-        type: 'input',
         name: 'vendorNamespace',
         message: 'Vendor namespace:',
         default: gitHubVendorInfo.namespace,
-      },
-      {
-        type: 'input',
-        name: 'extensionName',
-        message: 'Extension name:',
-        default: this.appname,
       },
       {
         type: 'input',
@@ -112,6 +94,29 @@ export default class extends Generator {
         name: 'description',
         message: 'Extension description:',
         default: 'e.g: text editor for returfs',
+      },
+      {
+        type: 'checkbox',
+        name: 'fileExtensions',
+        // todo: https://github.com/SBoudrias/Inquirer.js/tree/main/packages/search
+        message: 'File Extensions:',
+        choices: [
+          {
+            name: 'PDF',
+            value: 'pdf',
+            checked: false,
+          },
+          {
+            name: 'TXT',
+            value: 'txt',
+            checked: false,
+          },
+          {
+            name: 'JPG',
+            value: 'jpg',
+            checked: false,
+          },
+        ],
       },
       {
         type: 'checkbox',
@@ -152,13 +157,14 @@ export default class extends Generator {
     this.log(
       chalk.blue(`
     __________________________________________________________________________________________
-    Author     : ${this.answers.authorName} (${this.answers.authorUsername}, ${this.answers.authorEmail})
+    Author     : ${this.answers.authorName}, ${this.answers.authorEmail})
     Vendor     : ${this.answers.vendorName} (${slugify(this.answers.vendorName)})
-    Extension    : ${slugify(this.appname)} <${this.answers.description}>
+    Extension  : ${slugify(this.appname)} <${this.answers.description}>
     Namespace  : ${this.answers.vendorNamespace}\\${this.answers.className}
     Class name : ${this.answers.className}
     ____________________
     Packages & Utilities
+    File Extensions      : ${this.answers.fileExtensions.join(', ')}
     Stack                : ${this.answers.stack.map(item => item.charAt(0).toUpperCase() + item.slice(1)).join(', ')}
     Use Dependabot       : ${this.answers.useDependabot ? 'yes' : 'no'}
     __________________________________________________________________________________________
@@ -387,9 +393,12 @@ export default class extends Generator {
           ...this.answers,
         },
       );
-      this.fs.copy(
+      this.fs.copyTpl(
         this.templatePath(this._template + '/resources/js/main.tsx'),
         this.destinationPath('resources/js/main.tsx'),
+        {
+          defaultFileExtensions: this.answers.fileExtensions[0],
+        },
       );
       this.fs.copy(
         this.templatePath(this._template + '/resources/js/Extension.tsx'),
@@ -420,8 +429,13 @@ export default class extends Generator {
   }
 
   async install() {
-    this.spawn('npm', ['install']);
-    this.spawn('composer', ['install']);
+    if (this.answers.stack.includes('react')) {
+      this.spawn('npm', ['install']);
+    }
+
+    if (this.answers.stack.includes('laravel')) {
+      this.spawn('composer', ['install']);
+    }
   }
 
   end() {
