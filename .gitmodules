@@ -1,3 +1,0 @@
-[submodule "generators/app/templates/skeleton-returfs-package"]
-	path = generators/app/templates/skeleton-returfs-package
-	url = https://github.com/returfs/skeleton-returfs-package

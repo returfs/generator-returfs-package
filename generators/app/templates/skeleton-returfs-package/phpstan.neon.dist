@@ -1,0 +1,17 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+parameters:
+    level: 9
+    paths:
+        - src
+        - config
+        - database
+    ignoreErrors:
+        - '#Method App\\Http\\Controllers\\(.*)::__invoke\(\) has no return type specified.#'
+        - '#Method App\\(.*)::handle\(\) has no return type specified.#'
+    tmpDir:
+        build/phpstan
+    checkOctaneCompatibility:
+        true
+    checkModelProperties:
+        true

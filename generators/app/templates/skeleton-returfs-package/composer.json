@@ -1,0 +1,94 @@
+{
+  "name": "<%= vendorSlug %>/<%= extensionSlug %>",
+  "description": "<%= description %>",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "returfs-marketplace",
+  "authors": [
+    {
+      "name": "<%= authorName %>",
+      "email": "<%= authorEmail %>"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "returfs/shared-internal-laravel": "^1.0",
+    "returfs/shared-external-laravel": "^1.0"
+  },
+  "require-dev": {
+    "nunomaduro/collision": "^8.1",
+    "barryvdh/laravel-ide-helper": "^3.0",
+    "laravel/pint": "^1.14",
+    "orchestra/canvas": "^9.0",
+    "orchestra/testbench": "^9.0",
+    "pestphp/pest": "^2.7",
+    "pestphp/pest-plugin-faker": "^2.0",
+    "pestphp/pest-plugin-laravel": "^2.0",
+    "nunomaduro/larastan": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "<%= vendorComposerNamespace %>\\<%= className %>\\": "src/",
+      "<%= vendorComposerNamespace %>\\<%= className %>\\Database\\Factories\\": "database/factories/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "<%= vendorComposerNamespace %>\\<%= className %>\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "@clear",
+      "@prepare",
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@generate-ide-helper-model"
+    ],
+    "generate-ide-helper-model": [
+      "canvas ide-helper:models --dir=\"src/Models\" --write"
+    ],
+    "post-update-cmd": [
+      "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+      "@generate-ide-helper-model"
+    ],
+    "prepare-gh-push": [
+      "@lint",
+      "@analyse",
+      "@test"
+    ],
+    "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+    "prepare": "@php vendor/bin/testbench package:discover --ansi",
+    "build": "@php vendor/bin/testbench workbench:build --ansi",
+    "format": "@php vendor/bin/pint",
+    "analyse": "@php vendor/bin/phpstan analyse --memory-limit=2G",
+    "serve": [
+      "Composer\\Config::disableProcessTimeout",
+      "@build",
+      "@php vendor/bin/testbench serve --ansi"
+    ],
+    "lint": [
+      "@php vendor/bin/pint --ansi"
+    ],
+    "test": [
+      "@php vendor/bin/pest"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "phpstan/extension-installer": true
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "<%= vendorComposerNamespace %>\\<%= className %>\\<%= className %>ServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
