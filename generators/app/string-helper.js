@@ -7,10 +7,20 @@ export function slugify(subject) {
 
 export function toNamespace(subject) {
   return subject
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('')
-    .replace(/-/g, '');
+    .replace(/[\/\\]+$/, '')
+    .split(/[\/\\]/)
+    .map(part =>
+      part
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join('')
+        .replace(/-/g, ''),
+    )
+    .join('\\');
+}
+
+export function toComposerNamespace(subject) {
+  return toNamespace(subject).replace(/\\/g, '\\\\');
 }
 
 export function titleCase(subject) {

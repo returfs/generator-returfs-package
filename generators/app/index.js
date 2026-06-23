@@ -8,7 +8,12 @@ import {
   guessGitHubUsername,
   guessGitHubVendorInfo,
 } from './git-helper.js';
-import { slugify, toNamespace, titleCase } from './string-helper.js';
+import {
+  slugify,
+  toNamespace,
+  titleCase,
+  toComposerNamespace,
+} from './string-helper.js';
 
 export default class extends Generator {
   constructor(args, opts) {
@@ -251,6 +256,9 @@ export default class extends Generator {
           ...this.answers,
           vendorSlug: slugify(this.answers.vendorName),
           extensionSlug: slugify(this.appname),
+          vendorComposerNamespace: toComposerNamespace(
+            toNamespace(this.answers.vendorNamespace),
+          ),
         },
       );
 
@@ -294,6 +302,7 @@ export default class extends Generator {
         ),
         {
           ...this.answers,
+          vendorNamespace: toNamespace(this.answers.vendorNamespace),
         },
       );
       this.fs.copyTpl(
