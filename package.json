@@ -1,21 +1,39 @@
 {
-  "name": "generator-returfs-package",
-  "version": "0.1.0",
-  "description": "yeoman generator for creating returfs extensions",
+  "name": "@returfs/cli",
+  "version": "1.0.0",
+  "description": "Returfs extension developer CLI — scaffold, dev, build, and validate extensions",
   "type": "module",
   "author": "Toluwani Adewale",
   "license": "MIT",
+  "bin": {
+    "returfs": "./bin/returfs.js"
+  },
   "files": [
-    "skeleton-returfs-package"
+    "bin",
+    "generators"
   ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "keywords": [
-    "yeoman-generator",
     "returfs",
     "returfs-extension",
-    "extension"
+    "extension",
+    "cli",
+    "scaffolding",
+    "yeoman-generator"
   ],
+  "scripts": {
+    "new": "node bin/returfs.js new",
+    "lint": "eslint bin"
+  },
   "dependencies": {
     "chalk": "^5.4.1",
+    "commander": "^12.1.0",
+    "execa": "^9.3.0",
+    "mem-fs": "^4.1.0",
+    "mem-fs-editor": "^11.1.4",
+    "yeoman-environment": "^4.4.1",
     "yeoman-generator": "^7.4.0",
     "yosay": "^3.0.0"
   }
